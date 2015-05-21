@@ -50,11 +50,11 @@ namespace SfImisSso.Configs
 		}
 		[ObjectInfo(Title = "Connect Urls", Description = "Url's that will cause the application to authorize with them.")]
 		[ConfigurationProperty("ConnectUrls")]
-		public NameValueCollection ConnectUrls
+		public ConfigElementDictionary<string, UrlElement> ConnectUrls
 		{
 			get
 			{
-				return (NameValueCollection)this["ConnectUrls"];
+				return (ConfigElementDictionary<string, UrlElement>)this["ConnectUrls"];
 			}
 			set
 			{

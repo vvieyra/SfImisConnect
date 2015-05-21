@@ -46,7 +46,7 @@ namespace SfImisSso.Widgets
 						// RequestUrl parameter exists, use it.
 						// Check if redirecting to moc.surgonc.org, vm, or sosap
 						var domainUrls = Config.Get<ImisConfig>().ConnectUrls;
-						var domains = domainUrls.Cast<String>().Select(i => domainUrls[i]);
+						var domains = domainUrls.Elements.Select(i => i.Url);
 						if (domains.Any(redirectUrl.Contains))
 						{
 							if (HttpContext.Current.Response.Cookies["iMIS"] != null)
