@@ -32,57 +32,6 @@ namespace SfImisSso.Widgets
 			this.UserNameRequiredLiteral.Text = "Enter your email address";
 		}
 
-		protected override void OnLoggedIn(EventArgs e)
-		{
-			if(this.Page != null)
-			{
-				if (this.LoginAction == SuccessfulLoginAction.Redirect) 
-				{
-					string redirectUrl = this.Page.Request.QueryString["ReturnUrl"];
-					if (string.IsNullOrEmpty(redirectUrl))
-						redirectUrl = this.DestinationPageUrl;
-					else
-					{
-						// RequestUrl parameter exists, use it.
-						// Check if redirecting to moc.surgonc.org, vm, or sosap
-						var domainUrls = Config.Get<ImisConfig>().ConnectUrls;
-						var domains = domainUrls.Elements.Select(i => i.Url);
-						if (domains.Any(redirectUrl.Contains))
-						{
-							if (HttpContext.Current.Response.Cookies["iMIS"] != null)
-							{
-								var cookie = HttpContext.Current.Response.Cookies["iMIS"];
-								string imisId = cookie.Value;
-								if (!imisId.IsNullOrWhitespace())
-								{
-									// Call web service to get ContactGuid
-									// Attach to redirect url and complete redirect
-									var contactResponse = AttemptContactRequest(imisId);
-									if (contactResponse.ContactGuid != null & contactResponse.ContactGuid != Guid.Empty)
-									{
-										redirectUrl = redirectUrl + "?ContactGuid=" + contactResponse.ContactGuid.ToString();
-									}
-								}
-							}
-						}
-
-						redirectUrl = HttpUtility.UrlDecode(redirectUrl);
-					}
-
-					this.Page.Response.Redirect(redirectUrl, true);
-				}
-				else // close window
-				{
-					var url = Config.Get<SecurityConfig>().Permissions[SecurityConstants.Sets.Backend.SetName].AjaxLoginUrl;
-					if (url.Contains('?'))
-						url += "&closeWindow=true";
-					else
-						url += "?closeWindow=true";
-					this.DestinationPageUrl = url;
-				}
-			}
-		}
-
 		protected override void LoginForm_Authenticate(object sender, AuthenticateEventArgs e)
 		{
 			if (String.IsNullOrEmpty(this.MembershipProvider))
@@ -139,27 +88,6 @@ namespace SfImisSso.Widgets
 			{
 				var responseBytes = client.UploadValues(requestUrl, "POST", data);
 				response = JsonSerializer.DeserializeFromString<ImisResponse>(Encoding.UTF8.GetString(responseBytes));
-			}
-
-			return response;
-		}
-
-		protected ContactResponse AttemptContactRequest(string imisId)
-		{
-			// Get request url from configs
-			var requestUrl = Config.Get<ImisConfig>().ContactUrl;
-			if (String.IsNullOrWhiteSpace(requestUrl))
-				return null;
-
-			// Set data for request response
-			NameValueCollection data = new NameValueCollection() { { "iMISID", imisId } };
-			ContactResponse response = null;
-
-			//send and recieve data
-			using (WebClient client = new WebClient())
-			{
-				var responseBytes = client.UploadValues(requestUrl, "POST", data);
-				response = JsonSerializer.DeserializeFromString<ContactResponse>(Encoding.UTF8.GetString(responseBytes));
 			}
 
 			return response;

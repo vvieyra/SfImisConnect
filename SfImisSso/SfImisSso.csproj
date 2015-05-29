@@ -115,7 +115,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configs\ImisConfig.cs" />
-    <Compile Include="Configs\UrlElement.cs" />
     <Compile Include="Initializer.cs" />
     <Compile Include="Models\ContactResponse.cs" />
     <Compile Include="Models\CreateResponse.cs" />
